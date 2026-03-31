@@ -2,46 +2,20 @@
    Facebook In-App Browser (IAB) Mobile CSS Fixes
    Site: pugetsoundmartialarts.com
    Page: /grand-master-bobby-taboadas-balintawak
-   ================================================================
 
    HOW TO USE:
-   Paste the CSS below into your GoHighLevel funnel page's
-   "Custom CSS" field (Page Settings → Custom CSS).
+   1. Paste the CSS below into GHL → Page Settings → Custom CSS.
+      Replace the entire existing "FACEBOOK CONTROLS" block.
 
-   Replace the existing "FACEBOOK CONTROLS" block entirely with
-   this content — it supersedes and fixes the previous approach.
-
-   Also update your Header Tracking Code by replacing the existing
-   FB detection script with the companion JS block at the bottom
-   of this file.
-
-   ================================================================
-   ROOT CAUSES FIXED:
-   1. transform: scale(0.65) on headings — collapsed layout height,
-      fought against the JS font-size setter, left invisible gaps.
-      Replaced with font-size: min(vw, px) capping instead.
-
-   2. Section height: 95vh — Facebook IAB computes vh from the full
-      screen height (including browser chrome), causing content to
-      overflow or be cut off. dvh (dynamic viewport height) fixes
-      this; vh is kept as a fallback for older FB IAB versions.
-
-   3. vw-based font sizes — Facebook IAB's layout viewport can be
-      wider than the visual viewport, making 1vw larger than
-      expected. Capping with min(vw, px) prevents inflation on
-      narrow screens while keeping proportional sizing elsewhere.
-
-   4. JS font-size setter conflict — the existing header JS tried to
-      override font sizes after paint, fighting CSS !important rules.
-      With min() handling font sizes in CSS, that JS block should be
-      removed (replacement snippet provided at the bottom).
+   2. Replace the existing FB detection script in your Header
+      Tracking Code with the JavaScript block at the bottom.
+      The JS is the key fix — CSS alone cannot fit text to a
+      container; only JS can measure and adjust font sizes.
    ================================================================ */
 
 
 /* ----------------------------------------------------------------
-   SECTION 1 — VIEWPORT & GLOBAL RESETS
-   These are safe for all browsers, not just Facebook.
-   (Keep these even if the rest is Facebook-only.)
+   SECTION 1 — GLOBAL RESETS (safe for all browsers)
 ---------------------------------------------------------------- */
 
 html, body {
@@ -76,10 +50,9 @@ img, video, picture, svg {
 
 /* ----------------------------------------------------------------
    SECTION 2 — SECTION HEIGHT FIXES
-   Replace fixed vh values with dvh (dynamic viewport height).
-   dvh excludes the browser chrome from its calculation, so
-   content doesn't overflow behind Facebook's address/nav bars.
-   The vh lines act as fallbacks for older FB IAB engines.
+   dvh = dynamic viewport height (excludes browser chrome).
+   Prevents sections from overflowing behind Facebook's nav bars.
+   The vh lines are kept as fallbacks for older engines.
 ---------------------------------------------------------------- */
 
 #section-ldD3FEkwKz {
@@ -99,132 +72,146 @@ img, video, picture, svg {
 
 
 /* ----------------------------------------------------------------
-   SECTION 3 — MOBILE HERO HEADING FIXES (section-rtaJxEH-B-)
-   These are the three main title headings on the mobile hero:
-     #heading-DJAAvFegw-  →  "GRANDMASTER BOBBY TABOADAS"
-     #heading-zf6iWq_aqs  →  "BALINTAWAK ESKRIMA"
-     #heading-C2MYk1Lcxr  →  "CUENTADA SYSTEM"
+   SECTION 3 — HEADING BASE STYLES
+   The JS below handles font-size. These CSS rules establish
+   the correct text behaviour so the JS measurement is accurate.
 
-   PREVIOUS BROKEN APPROACH:
-     transform: scale(0.65) — shrinks visually but the layout box
-     stays full size, leaving large invisible gaps between headings.
-     This also conflicts with any JS font-size setter.
-
-   CORRECT APPROACH:
-     font-size: min(vw, px) — shrinks the actual rendered size,
-     respects the layout box, and can't be inflated by FB IAB's
-     wider layout viewport. The px cap is what the text measures
-     on a 390px phone at the intended vw value.
-
-   TUNE THE px CAP TO YOUR DESIGN:
-     At 390px wide:  7.3vw ≈ 28px,  11vw ≈ 43px,  13vw ≈ 51px
-     These caps freeze the text at the "390px phone" size and
-     prevent growth on FB IAB's inflated viewport.
+   white-space: nowrap  — keeps each heading on one line
+   overflow: visible    — lets the JS measure the true text width
+   transform: none      — removes the old scale(0.65) hack which
+                          collapsed layout height and left gaps
 ---------------------------------------------------------------- */
 
-/* "GRANDMASTER BOBBY TABOADAS" — builder sets 7.3vw on mobile */
-#heading-DJAAvFegw- {
-    font-size: min(7.3vw, 28px) !important;
-    line-height: 1.15 !important;
-    word-break: break-word;
-
-    /* REMOVE the scale transform — it fights the font-size fix */
-    transform: none !important;
-    transform-origin: unset !important;
+#heading-DJAAvFegw- h1,
+#heading-DJAAvFegw- h2,
+#heading-DJAAvFegw- h3,
+#heading-zf6iWq_aqs h1,
+#heading-zf6iWq_aqs h2,
+#heading-zf6iWq_aqs h3,
+#heading-C2MYk1Lcxr h1,
+#heading-C2MYk1Lcxr h2,
+#heading-C2MYk1Lcxr h3 {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    display: block !important;
+    width: 100% !important;
 }
 
-/* "BALINTAWAK ESKRIMA" — builder sets 11vw on mobile */
-#heading-zf6iWq_aqs {
-    font-size: min(11vw, 43px) !important;
-    line-height: 1.1 !important;
-
-    transform: none !important;
-    transform-origin: unset !important;
-}
-
-/* "CUENTADA SYSTEM" — builder sets 13vw on mobile */
+#heading-DJAAvFegw-,
+#heading-zf6iWq_aqs,
 #heading-C2MYk1Lcxr {
-    font-size: min(13vw, 51px) !important;
-    line-height: 1.1 !important;
-
     transform: none !important;
     transform-origin: unset !important;
-}
-
-
-/* ----------------------------------------------------------------
-   SECTION 4 — FACEBOOK IAB-SPECIFIC OVERRIDES
-   These rules only apply when the fb-iab class is present on
-   <html>. That class is added by the companion JS snippet below.
-   This lets you write Facebook-specific CSS without affecting
-   Chrome, Safari, or other browsers.
----------------------------------------------------------------- */
-
-/* Tighter font caps for Facebook IAB's inflated viewport.
-   FB IAB on some Android devices reports a wider layout viewport
-   than the visual viewport, so min() at 390px may still be
-   slightly too large. These values drop ~10% further. */
-
-html.fb-iab #heading-DJAAvFegw- {
-    font-size: min(7.3vw, 24px) !important;
-}
-
-html.fb-iab #heading-zf6iWq_aqs {
-    font-size: min(11vw, 38px) !important;
-}
-
-html.fb-iab #heading-C2MYk1Lcxr {
-    font-size: min(13vw, 46px) !important;
-}
-
-/* Confirm no horizontal overflow in FB IAB */
-html.fb-iab .c-section,
-html.fb-iab .c-row,
-html.fb-iab .c-column {
-    max-width: 100vw !important;
-    overflow-x: hidden !important;
-}
-
-/* Prevent FB IAB from inflating button text */
-html.fb-iab .main-heading-button {
-    font-size: 20px !important;
-}
-
-html.fb-iab .sub-heading-button {
-    font-size: 16px !important;
+    overflow: hidden !important; /* clip after JS fits the size */
 }
 
 
 /* ================================================================
-   COMPANION JAVASCRIPT — paste into Header Tracking Code
+   COMPANION JAVASCRIPT
+   Paste this into GHL → Header Tracking Code.
+   Remove/replace any previous FB font-size script entirely.
 
-   This replaces the existing FB detection script. Changes:
-   - Adds 'fb-iab' class to <html> for CSS targeting
-   - Sets viewport meta to prevent zoom in FB IAB
-   - REMOVES the old font-size setter (now handled by CSS min())
+   HOW IT WORKS:
+   CSS cannot "fit text to a container" because it has no way to
+   measure rendered text width at runtime. JavaScript can.
 
+   fitHeading() works by:
+     1. Setting the h1 to a known large font size (80px)
+     2. Measuring how wide that text renders (h1.scrollWidth)
+     3. Computing the ratio: containerWidth / renderedWidth
+     4. Scaling the 80px size by that ratio → the size that fills
+        the container exactly
+     5. Applying a 2% safety margin to prevent off-by-1 overflow
+
+   This approach is independent of vw/viewport units, so it works
+   correctly in Facebook IAB even though FB computes vw differently.
+
+   The function runs several times with timeouts because Facebook
+   IAB defers font loading and layout, so early measurements can
+   be wrong. The multiple runs ensure accuracy after FB has
+   finished its post-load adjustments.
    ================================================================
-   <script>
-   (function() {
-     var ua = navigator.userAgent || '';
-     var isFB = ua.indexOf('FBAN') !== -1 || ua.indexOf('FBAV') !== -1;
-     if (!isFB) return;
 
-     // Add class for CSS targeting
-     document.documentElement.classList.add('fb-iab');
+<script>
+(function () {
+  // ── Detect Facebook in-app browser ──────────────────────────
+  var ua = navigator.userAgent || '';
+  var isFB = ua.indexOf('FBAN') !== -1 || ua.indexOf('FBAV') !== -1;
 
-     // Lock viewport — prevents FB IAB from zooming
-     var meta = document.querySelector('meta[name="viewport"]');
-     if (meta) {
-       meta.setAttribute('content',
-         'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
-       );
-     }
-   })();
-   </script>
+  // Lock viewport in FB IAB to prevent auto-zoom
+  if (isFB) {
+    var meta = document.querySelector('meta[name="viewport"]');
+    if (meta) {
+      meta.setAttribute(
+        'content',
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
+      );
+    }
+    document.documentElement.classList.add('fb-iab');
+  }
 
-   NOTE: Delete the previous script block that contained:
-     fixHeadings() / h1.style.setProperty('font-size', ...)
-   The CSS min() values above handle font sizing now — having
-   both the CSS and JS set font-size causes a flash and conflict.
+  // ── Fit a single heading to its container width ──────────────
+  function fitHeading(headingId) {
+    var wrapper = document.getElementById(headingId);
+    if (!wrapper) return;
+
+    var heading = wrapper.querySelector('h1, h2, h3');
+    if (!heading) return;
+
+    // Force single-line layout before measuring
+    heading.style.setProperty('white-space', 'nowrap', 'important');
+    heading.style.setProperty('display', 'block', 'important');
+
+    // The container to fill is the heading's immediate parent
+    // (the inner div between .text-output and the h1)
+    var container = heading.parentElement;
+    var containerWidth = container ? container.offsetWidth : 0;
+
+    // Fall back to the wrapper's client width if parent is zero
+    if (!containerWidth || containerWidth <= 0) {
+      containerWidth = wrapper.clientWidth;
+    }
+    if (!containerWidth || containerWidth <= 0) return;
+
+    // ── Proportional fit (O(1), font-agnostic) ─────────────────
+    // Set a known large size, measure rendered width, then scale.
+    var testSize = 80;
+    heading.style.setProperty('font-size', testSize + 'px', 'important');
+
+    // scrollWidth gives true content width (ignores clipping)
+    var renderedWidth = heading.scrollWidth;
+    if (!renderedWidth || renderedWidth <= 0) return;
+
+    // Scale proportionally, then apply a 2% safety margin
+    // so the text never touches the container edge
+    var fitted = Math.floor((testSize * containerWidth / renderedWidth) * 0.98);
+    fitted = Math.max(8, fitted); // never smaller than 8px
+
+    heading.style.setProperty('font-size', fitted + 'px', 'important');
+  }
+
+  // ── Fit all three mobile hero headings ───────────────────────
+  function fitAllHeadings() {
+    fitHeading('heading-DJAAvFegw-');  // GRANDMASTER BOBBY TABOADAS
+    fitHeading('heading-zf6iWq_aqs'); // BALINTAWAK ESKRIMA
+    fitHeading('heading-C2MYk1Lcxr'); // CUENTADA SYSTEM
+  }
+
+  // ── Run schedule ─────────────────────────────────────────────
+  // Facebook IAB defers font loading and layout adjustments after
+  // the initial paint. Running at multiple points ensures accuracy.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fitAllHeadings);
+  } else {
+    fitAllHeadings();
+  }
+  window.addEventListener('load', fitAllHeadings);
+  window.addEventListener('resize', fitAllHeadings);
+  setTimeout(fitAllHeadings, 100);   // after initial paint
+  setTimeout(fitAllHeadings, 500);   // after FB IAB font load
+  setTimeout(fitAllHeadings, 1500);  // after FB IAB late adjustments
+  setTimeout(fitAllHeadings, 3000);  // safety net
+})();
+</script>
+
    ================================================================ */
