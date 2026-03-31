@@ -95,6 +95,12 @@ img, video, picture, svg {
     overflow: visible !important;
     display: block !important;
     width: 100% !important;
+    /* Zero out browser default h1/h2/h3 margins — these are em-based
+       and scale with fitted font size, creating excessive gaps.
+       line-height: 1 prevents extra vertical space above/below the glyph. */
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
 }
 
 #heading-DJAAvFegw-,
@@ -103,6 +109,11 @@ img, video, picture, svg {
     transform: none !important;
     transform-origin: unset !important;
     overflow: hidden !important; /* clip after JS fits the size */
+    /* Remove any wrapper-level vertical spacing */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 
