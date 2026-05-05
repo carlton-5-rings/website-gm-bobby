@@ -124,6 +124,11 @@ img, video, picture, svg {
     scroll-snap-stop: always;
 }
 
+.fb-iab #section-eIbZxghQy5,
+.fb-iab #section-eIbZxghQy5 * {
+    font-size: 16px !important;
+}
+
 /* ================================================================
    SCROLL SNAP — COMPANION JAVASCRIPT
    Add this as a SEPARATE script block in GHL Header Tracking Code
