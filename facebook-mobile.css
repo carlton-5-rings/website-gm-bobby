@@ -221,7 +221,8 @@ img, video, picture, svg {
       var parent = el.parentElement;
       if (!parent) break;
       var overflowY = window.getComputedStyle(parent).overflowY;
-      if (overflowY === 'auto' || overflowY === 'scroll') {
+      if ((overflowY === 'auto' || overflowY === 'scroll') &&
+          parent.scrollHeight > parent.clientHeight) {
         scrollContainer = parent;
         break;
       }
