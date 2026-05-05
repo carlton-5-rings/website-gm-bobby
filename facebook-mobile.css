@@ -26,9 +26,10 @@ html, body {
 
 html {
     -webkit-font-smoothing: antialiased;
-    overflow-x: clip;
     width: 100%;
     max-width: 100vw;
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
 }
 
 body {
@@ -209,62 +210,22 @@ img, video, picture, svg {
     }
   }
 
-  function applyScrollSnap() {
-    var snapSections = document.querySelectorAll('.snap-section');
-    if (!snapSections.length) return;
-
-    // Walk up from the first snap section to find the element
-    // that is actually acting as the scroll container.
-    var scrollContainer = null;
-    var el = snapSections[0];
-    while (el && el !== document.documentElement) {
-      var parent = el.parentElement;
-      if (!parent) break;
-      var overflowY = window.getComputedStyle(parent).overflowY;
-      if ((overflowY === 'auto' || overflowY === 'scroll') &&
-          parent.scrollHeight > parent.clientHeight) {
-        scrollContainer = parent;
-        break;
-      }
-      el = parent;
-    }
-    if (!scrollContainer) {
-      scrollContainer = document.scrollingElement || document.documentElement;
-    }
-
-    scrollContainer.style.setProperty('scroll-snap-type', 'y mandatory', 'important');
-    scrollContainer.style.setProperty('scroll-behavior', 'smooth', 'important');
-
-    snapSections.forEach(function (section) {
-      section.style.setProperty('scroll-snap-align', 'start', 'important');
-      section.style.setProperty('scroll-snap-stop', 'always', 'important');
-    });
-  }
-
   function runAll() {
     fitAllHeadings();
     fixButtonSpacing();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      runAll();
-      applyScrollSnap();
-    });
+    document.addEventListener('DOMContentLoaded', runAll);
   } else {
     runAll();
-    applyScrollSnap();
   }
-  window.addEventListener('load', function () {
-    runAll();
-    applyScrollSnap();
-  });
+  window.addEventListener('load', runAll);
   window.addEventListener('resize', runAll);
   setTimeout(runAll, 100);
   setTimeout(runAll, 500);
   setTimeout(runAll, 1500);
   setTimeout(runAll, 3000);
-  setTimeout(applyScrollSnap, 500);
 })();
 </script>
 
