@@ -138,12 +138,83 @@ img, video, picture, svg {
 
 <script>
 (function () {
+  var ua = navigator.userAgent || '';
+  var isFB = ua.indexOf('FBAN') !== -1 || ua.indexOf('FBAV') !== -1;
+
+  if (isFB) {
+    var meta = document.querySelector('meta[name="viewport"]');
+    if (meta) {
+      meta.setAttribute(
+        'content',
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
+      );
+    }
+    document.documentElement.classList.add('fb-iab');
+  }
+
+  function fitHeading(headingId) {
+    var wrapper = document.getElementById(headingId);
+    if (!wrapper) return;
+    var heading = wrapper.querySelector('h1, h2, h3');
+    if (!heading) return;
+    heading.style.setProperty('white-space', 'nowrap', 'important');
+    heading.style.setProperty('display', 'block', 'important');
+    var container = heading.parentElement;
+    var containerWidth = container ? container.offsetWidth : 0;
+    if (!containerWidth || containerWidth <= 0) containerWidth = wrapper.clientWidth;
+    if (!containerWidth || containerWidth <= 0) return;
+    var testSize = 80;
+    heading.style.setProperty('font-size', testSize + 'px', 'important');
+    var renderedWidth = heading.scrollWidth;
+    if (!renderedWidth || renderedWidth <= 0) return;
+    var fitted = Math.floor((testSize * containerWidth / renderedWidth) * 0.98);
+    fitted = Math.max(8, fitted);
+    heading.style.setProperty('font-size', fitted + 'px', 'important');
+  }
+
+  function fitAllHeadings() {
+    fitHeading('heading-DJAAvFegw-');
+    fitHeading('heading-zf6iWq_aqs');
+    fitHeading('heading-C2MYk1Lcxr');
+  }
+
+  function fixButtonSpacing() {
+    var buttons = document.querySelectorAll('button.custom');
+    for (var i = 0; i < buttons.length; i++) {
+      var btn = buttons[i];
+      btn.style.setProperty('gap', '0', 'important');
+      btn.style.setProperty('row-gap', '0', 'important');
+      btn.style.setProperty('justify-content', 'flex-start', 'important');
+
+      var group = btn.querySelector('.main-heading-group');
+      if (group) {
+        group.style.setProperty('align-self', 'flex-start', 'important');
+        group.style.setProperty('height', 'auto', 'important');
+        group.style.setProperty('min-height', '0', 'important');
+        group.style.setProperty('margin-bottom', '0', 'important');
+        group.style.setProperty('padding-bottom', '0', 'important');
+        var textDiv = group.querySelector('.main-heading-button');
+        if (textDiv) {
+          textDiv.style.setProperty('line-height', '1.15', 'important');
+          textDiv.style.setProperty('margin', '0', 'important');
+          textDiv.style.setProperty('padding', '0', 'important');
+        }
+      }
+
+      var subHead = btn.querySelector('.text-xs');
+      if (subHead) {
+        subHead.style.setProperty('margin-top', '0', 'important');
+        subHead.style.setProperty('padding-top', '0', 'important');
+      }
+    }
+  }
+
   function applyScrollSnap() {
     var snapSections = document.querySelectorAll('.snap-section');
     if (!snapSections.length) return;
 
-    // Walk up the DOM from the first snap section to find
-    // the element that is actually acting as the scroll container.
+    // Walk up from the first snap section to find the element
+    // that is actually acting as the scroll container.
     var scrollContainer = null;
     var el = snapSections[0];
     while (el && el !== document.documentElement) {
@@ -156,30 +227,43 @@ img, video, picture, svg {
       }
       el = parent;
     }
-
-    // Fall back to the viewport scrolling element if no inner
-    // scroll container was found.
     if (!scrollContainer) {
       scrollContainer = document.scrollingElement || document.documentElement;
     }
 
-    // Apply snap to whichever element actually scrolls.
     scrollContainer.style.setProperty('scroll-snap-type', 'y mandatory', 'important');
     scrollContainer.style.setProperty('scroll-behavior', 'smooth', 'important');
 
-    // Apply snap alignment to each section that has the class.
     snapSections.forEach(function (section) {
       section.style.setProperty('scroll-snap-align', 'start', 'important');
       section.style.setProperty('scroll-snap-stop', 'always', 'important');
     });
   }
 
-  if (document.readyState !== 'loading') {
-    applyScrollSnap();
-  } else {
-    document.addEventListener('DOMContentLoaded', applyScrollSnap);
+  function runAll() {
+    fitAllHeadings();
+    fixButtonSpacing();
   }
-  window.addEventListener('load', applyScrollSnap);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      runAll();
+      applyScrollSnap();
+    });
+  } else {
+    runAll();
+    applyScrollSnap();
+  }
+  window.addEventListener('load', function () {
+    runAll();
+    applyScrollSnap();
+  });
+  window.addEventListener('resize', runAll);
+  setTimeout(runAll, 100);
+  setTimeout(runAll, 500);
+  setTimeout(runAll, 1500);
+  setTimeout(runAll, 3000);
+  setTimeout(applyScrollSnap, 500);
 })();
 </script>
 
