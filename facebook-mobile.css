@@ -35,8 +35,6 @@ body {
     max-width: 100vw;
     overflow-x: hidden;
     touch-action: manipulation;
-    scroll-behavior: smooth;
-    scroll-snap-type: y mandatory;
 }
 
 *, *::before, *::after {
@@ -124,3 +122,65 @@ img, video, picture, svg {
     scroll-snap-align: start;
     scroll-snap-stop: always;
 }
+
+/* ================================================================
+   SCROLL SNAP — COMPANION JAVASCRIPT
+   Add this as a SEPARATE script block in GHL Header Tracking Code
+   (keep the existing FB IAB script — this goes alongside it).
+
+   WHY JS instead of pure CSS:
+   GHL wraps sections in an inner container div that may itself be
+   the scroll container. CSS scroll-snap-type on html or body has no
+   effect unless it targets the element that actually scrolls.
+   This script walks the DOM to find that element at runtime and
+   applies snap directly via inline styles (highest CSS priority).
+   ================================================================
+
+<script>
+(function () {
+  function applyScrollSnap() {
+    var snapSections = document.querySelectorAll('.snap-section');
+    if (!snapSections.length) return;
+
+    // Walk up the DOM from the first snap section to find
+    // the element that is actually acting as the scroll container.
+    var scrollContainer = null;
+    var el = snapSections[0];
+    while (el && el !== document.documentElement) {
+      var parent = el.parentElement;
+      if (!parent) break;
+      var overflowY = window.getComputedStyle(parent).overflowY;
+      if (overflowY === 'auto' || overflowY === 'scroll') {
+        scrollContainer = parent;
+        break;
+      }
+      el = parent;
+    }
+
+    // Fall back to the viewport scrolling element if no inner
+    // scroll container was found.
+    if (!scrollContainer) {
+      scrollContainer = document.scrollingElement || document.documentElement;
+    }
+
+    // Apply snap to whichever element actually scrolls.
+    scrollContainer.style.setProperty('scroll-snap-type', 'y mandatory', 'important');
+    scrollContainer.style.setProperty('scroll-behavior', 'smooth', 'important');
+
+    // Apply snap alignment to each section that has the class.
+    snapSections.forEach(function (section) {
+      section.style.setProperty('scroll-snap-align', 'start', 'important');
+      section.style.setProperty('scroll-snap-stop', 'always', 'important');
+    });
+  }
+
+  if (document.readyState !== 'loading') {
+    applyScrollSnap();
+  } else {
+    document.addEventListener('DOMContentLoaded', applyScrollSnap);
+  }
+  window.addEventListener('load', applyScrollSnap);
+})();
+</script>
+
+   ================================================================ */
