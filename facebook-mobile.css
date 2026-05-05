@@ -124,10 +124,6 @@ img, video, picture, svg {
     scroll-snap-stop: always;
 }
 
-.fb-iab #paragraph-htzwWyURfZ,
-.fb-iab #paragraph-htzwWyURfZ * {
-    font-size: 16px !important;
-}
 
 /* ================================================================
    SCROLL SNAP — COMPANION JAVASCRIPT
@@ -215,9 +211,20 @@ img, video, picture, svg {
     }
   }
 
+  function fixFBText() {
+    if (!isFB) return;
+    var el = document.getElementById('paragraph-htzwWyURfZ');
+    if (!el) return;
+    el.style.setProperty('font-size', '16px', 'important');
+    el.querySelectorAll('*').forEach(function (child) {
+      child.style.setProperty('font-size', '16px', 'important');
+    });
+  }
+
   function runAll() {
     fitAllHeadings();
     fixButtonSpacing();
+    fixFBText();
   }
 
   if (document.readyState === 'loading') {
