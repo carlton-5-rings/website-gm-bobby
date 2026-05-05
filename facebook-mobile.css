@@ -1,22 +1,21 @@
-/* ================================================================
-   Facebook In-App Browser (IAB) Mobile CSS Fixes
-   Site: pugetsoundmartialarts.com
-   Page: /grand-master-bobby-taboadas-balintawak
+/*SECTION HEIGHT CONTROLS*/
+/*MENU*/
+#section-ldD3FEkwKz {
+    height: 5vh;
+}
+/*DESKTOP SECTION 1*/
+#section-fH_hWwX__ {
+    height: 95vh;
+}
+/*MOBILE SECTION*/
+#section-rtaJxEH-B- {
+    height: 95vh;
+}
 
-   HOW TO USE:
-   1. Paste the CSS below into GHL → Page Settings → Custom CSS.
-      Replace the entire existing "FACEBOOK CONTROLS" block.
-
-   2. Replace the existing FB detection script in your Header
-      Tracking Code with the JavaScript block at the bottom.
-      The JS is the key fix — CSS alone cannot fit text to a
-      container; only JS can measure and adjust font sizes.
-   ================================================================ */
-
-
-/* ----------------------------------------------------------------
-   SECTION 1 — GLOBAL RESETS (safe for all browsers)
----------------------------------------------------------------- */
+/*SECTION TWO*/
+#section-eIbZxghQy5 {
+    min-height: 100vh;
+}
 
 html, body {
     -webkit-text-size-adjust: 100% !important;
@@ -27,9 +26,11 @@ html, body {
 
 html {
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
     width: 100%;
     max-width: 100vw;
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
 }
 
 body {
@@ -47,14 +48,6 @@ img, video, picture, svg {
     height: auto !important;
 }
 
-
-/* ----------------------------------------------------------------
-   SECTION 2 — SECTION HEIGHT FIXES
-   dvh = dynamic viewport height (excludes browser chrome).
-   Prevents sections from overflowing behind Facebook's nav bars.
-   The vh lines are kept as fallbacks for older engines.
----------------------------------------------------------------- */
-
 #section-ldD3FEkwKz {
     height: 5vh;
     height: 5dvh;
@@ -70,18 +63,6 @@ img, video, picture, svg {
     height: 95dvh;
 }
 
-
-/* ----------------------------------------------------------------
-   SECTION 3 — HEADING BASE STYLES
-   The JS below handles font-size. These CSS rules establish
-   the correct text behaviour so the JS measurement is accurate.
-
-   white-space: nowrap  — keeps each heading on one line
-   overflow: visible    — lets the JS measure the true text width
-   transform: none      — removes the old scale(0.65) hack which
-                          collapsed layout height and left gaps
----------------------------------------------------------------- */
-
 #heading-DJAAvFegw- h1,
 #heading-DJAAvFegw- h2,
 #heading-DJAAvFegw- h3,
@@ -95,9 +76,6 @@ img, video, picture, svg {
     overflow: visible !important;
     display: block !important;
     width: 100% !important;
-    /* Zero out browser default h1/h2/h3 margins — these are em-based
-       and scale with fitted font size, creating excessive gaps.
-       line-height: 1 prevents extra vertical space above/below the glyph. */
     margin: 0 !important;
     padding: 0 !important;
     line-height: 1 !important;
@@ -108,121 +86,41 @@ img, video, picture, svg {
 #heading-C2MYk1Lcxr {
     transform: none !important;
     transform-origin: unset !important;
-    overflow: hidden !important; /* clip after JS fits the size */
-    /* Remove any wrapper-level vertical spacing */
+    overflow: hidden !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
 
+/*BUTTONS FIX*/
+.main-heading-group {
+    align-items: center !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
 
-/* ================================================================
-   COMPANION JAVASCRIPT
-   Paste this into GHL → Header Tracking Code.
-   Remove/replace any previous FB font-size script entirely.
+.main-heading-button {
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-   HOW IT WORKS:
-   CSS cannot "fit text to a container" because it has no way to
-   measure rendered text width at runtime. JavaScript can.
+.button-icon-start,
+.button-icon-end {
+    flex-shrink: 0 !important;
+    align-self: center !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
 
-   fitHeading() works by:
-     1. Setting the h1 to a known large font size (80px)
-     2. Measuring how wide that text renders (h1.scrollWidth)
-     3. Computing the ratio: containerWidth / renderedWidth
-     4. Scaling the 80px size by that ratio → the size that fills
-        the container exactly
-     5. Applying a 2% safety margin to prevent off-by-1 overflow
+.main-heading-group {
+    height: auto !important;
+    min-height: 0 !important;
+    align-self: flex-start !important;
+}
 
-   This approach is independent of vw/viewport units, so it works
-   correctly in Facebook IAB even though FB computes vw differently.
-
-   The function runs several times with timeouts because Facebook
-   IAB defers font loading and layout, so early measurements can
-   be wrong. The multiple runs ensure accuracy after FB has
-   finished its post-load adjustments.
-   ================================================================
-
-<script>
-(function () {
-  // ── Detect Facebook in-app browser ──────────────────────────
-  var ua = navigator.userAgent || '';
-  var isFB = ua.indexOf('FBAN') !== -1 || ua.indexOf('FBAV') !== -1;
-
-  // Lock viewport in FB IAB to prevent auto-zoom
-  if (isFB) {
-    var meta = document.querySelector('meta[name="viewport"]');
-    if (meta) {
-      meta.setAttribute(
-        'content',
-        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
-      );
-    }
-    document.documentElement.classList.add('fb-iab');
-  }
-
-  // ── Fit a single heading to its container width ──────────────
-  function fitHeading(headingId) {
-    var wrapper = document.getElementById(headingId);
-    if (!wrapper) return;
-
-    var heading = wrapper.querySelector('h1, h2, h3');
-    if (!heading) return;
-
-    // Force single-line layout before measuring
-    heading.style.setProperty('white-space', 'nowrap', 'important');
-    heading.style.setProperty('display', 'block', 'important');
-
-    // The container to fill is the heading's immediate parent
-    // (the inner div between .text-output and the h1)
-    var container = heading.parentElement;
-    var containerWidth = container ? container.offsetWidth : 0;
-
-    // Fall back to the wrapper's client width if parent is zero
-    if (!containerWidth || containerWidth <= 0) {
-      containerWidth = wrapper.clientWidth;
-    }
-    if (!containerWidth || containerWidth <= 0) return;
-
-    // ── Proportional fit (O(1), font-agnostic) ─────────────────
-    // Set a known large size, measure rendered width, then scale.
-    var testSize = 80;
-    heading.style.setProperty('font-size', testSize + 'px', 'important');
-
-    // scrollWidth gives true content width (ignores clipping)
-    var renderedWidth = heading.scrollWidth;
-    if (!renderedWidth || renderedWidth <= 0) return;
-
-    // Scale proportionally, then apply a 2% safety margin
-    // so the text never touches the container edge
-    var fitted = Math.floor((testSize * containerWidth / renderedWidth) * 0.98);
-    fitted = Math.max(8, fitted); // never smaller than 8px
-
-    heading.style.setProperty('font-size', fitted + 'px', 'important');
-  }
-
-  // ── Fit all three mobile hero headings ───────────────────────
-  function fitAllHeadings() {
-    fitHeading('heading-DJAAvFegw-');  // GRANDMASTER BOBBY TABOADAS
-    fitHeading('heading-zf6iWq_aqs'); // BALINTAWAK ESKRIMA
-    fitHeading('heading-C2MYk1Lcxr'); // CUENTADA SYSTEM
-  }
-
-  // ── Run schedule ─────────────────────────────────────────────
-  // Facebook IAB defers font loading and layout adjustments after
-  // the initial paint. Running at multiple points ensures accuracy.
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fitAllHeadings);
-  } else {
-    fitAllHeadings();
-  }
-  window.addEventListener('load', fitAllHeadings);
-  window.addEventListener('resize', fitAllHeadings);
-  setTimeout(fitAllHeadings, 100);   // after initial paint
-  setTimeout(fitAllHeadings, 500);   // after FB IAB font load
-  setTimeout(fitAllHeadings, 1500);  // after FB IAB late adjustments
-  setTimeout(fitAllHeadings, 3000);  // safety net
-})();
-</script>
-
-   ================================================================ */
+.snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
