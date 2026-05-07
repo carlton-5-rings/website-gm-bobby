@@ -214,8 +214,7 @@ img, video, picture, svg {
   function fixFBText() {
     if (!isFB) return;
     var targets = [
-      { id: 'paragraph-htzwWyURfZ', size: '16px' },
-      { id: 'sub-heading-HqiGTxllyA', size: '14px' }
+      { id: 'paragraph-htzwWyURfZ', size: '14px' }
     ];
     targets.forEach(function (t) {
       var el = document.getElementById(t.id);
