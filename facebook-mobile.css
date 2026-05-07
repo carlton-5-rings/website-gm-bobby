@@ -225,10 +225,11 @@ img, video, picture, svg {
     var snapSections = document.querySelectorAll('.snap-section');
     if (!snapSections.length) return;
     var last = snapSections[snapSections.length - 1];
-    var pastLast = (window.scrollY || document.documentElement.scrollTop) >= last.offsetTop + last.offsetHeight;
+    var scrollY = window.scrollY || document.documentElement.scrollTop;
+    var snapDisabled = scrollY >= last.offsetTop;
     document.documentElement.style.setProperty(
       'scroll-snap-type',
-      pastLast ? 'none' : 'y mandatory',
+      snapDisabled ? 'none' : 'y mandatory',
       'important'
     );
   }
