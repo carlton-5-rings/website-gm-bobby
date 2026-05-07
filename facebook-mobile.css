@@ -213,11 +213,17 @@ img, video, picture, svg {
 
   function fixFBText() {
     if (!isFB) return;
-    var el = document.getElementById('paragraph-htzwWyURfZ');
-    if (!el) return;
-    el.style.setProperty('font-size', '16px', 'important');
-    el.querySelectorAll('*').forEach(function (child) {
-      child.style.setProperty('font-size', '16px', 'important');
+    var targets = [
+      { id: 'paragraph-htzwWyURfZ', size: '16px' },
+      { id: 'sub-heading-HqiGTxllyA', size: '14px' }
+    ];
+    targets.forEach(function (t) {
+      var el = document.getElementById(t.id);
+      if (!el) return;
+      el.style.setProperty('font-size', t.size, 'important');
+      el.querySelectorAll('*').forEach(function (child) {
+        child.style.setProperty('font-size', t.size, 'important');
+      });
     });
   }
 
