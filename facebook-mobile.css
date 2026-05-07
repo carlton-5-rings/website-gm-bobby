@@ -221,6 +221,20 @@ img, video, picture, svg {
     });
   }
 
+  function manageScrollSnap() {
+    var snapSections = document.querySelectorAll('.snap-section');
+    if (!snapSections.length) return;
+    var last = snapSections[snapSections.length - 1];
+    var pastLast = (window.scrollY || document.documentElement.scrollTop) >= last.offsetTop + last.offsetHeight;
+    document.documentElement.style.setProperty(
+      'scroll-snap-type',
+      pastLast ? 'none' : 'y mandatory',
+      'important'
+    );
+  }
+
+  window.addEventListener('scroll', manageScrollSnap, { passive: true });
+
   function runAll() {
     fitAllHeadings();
     fixButtonSpacing();
@@ -232,7 +246,7 @@ img, video, picture, svg {
   } else {
     runAll();
   }
-  window.addEventListener('load', runAll);
+  window.addEventListener('load', function () { runAll(); manageScrollSnap(); });
   window.addEventListener('resize', runAll);
   setTimeout(runAll, 100);
   setTimeout(runAll, 500);
